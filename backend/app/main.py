@@ -1,30 +1,39 @@
 from fastapi import FastAPI
-from app.core.config import setup_cors
 from app.api.routes_predict import router as predict_router
-from app.api.routes_health import router as health_router
-from app.database.database import init_db
-from app.api.routes_predictions_log import router as predictions_router
+from sqlmodel import SQLModel
+from app.database.database import engine  # tu engine SQLAlchemy
+from app.models.prediction_model import PredictionRecord
 
 app = FastAPI(
-    title="Customer Churn Prediction API",
-    description="API de predicción de abandono de clientes con IA.",
-    version="1.0.0",
+    title="Customer Churn API",
+    description="API para predicción de churn con almacenamiento de registros.",
+    version="1.0.0"
 )
+
+# Crear tablas al iniciar la aplicación
 @app.on_event("startup")
 def on_startup():
-    init_db()
+    SQLModel.metadata.create_all(engine)
+    print("✅ Tablas creadas correctamente en la base de datos")
 
-# Configurar CORS
-setup_cors(app)
+# Endpoint de salud
+@app.get("/health", tags=["System"])
+def health_check():
+    return {"status": "ok"}
 
-# Incluir rutas
-app.include_router(health_router)
+# Rutas del módulo de predicción
 app.include_router(predict_router)
-app.include_router(predictions_router)
 
+# Endpoint raíz
 @app.get("/")
 def root():
-    return {"message": "API funcionando correctamente"}
+    return {
+        "message": "🚀 API de Predicción de Churn está activa",
+        "docs": "/docs",
+        "health": "/health",
+        "api": "/predecir/"
+    }
+
 
 
 

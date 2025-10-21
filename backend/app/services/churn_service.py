@@ -1,26 +1,32 @@
-from app.models.prediction_record import PredictionRecord
-from app.database.database import get_session
-from sqlmodel import Session
-import json
+import joblib
+import pandas as pd
+import os
 
-def predecir_churn(data):
-    # Lógica del modelo ML (ya existente)
-    pred = modelo.predict([list(data.dict().values())])[0]
-    prob = modelo.predict_proba([list(data.dict().values())])[0][1]
+MODEL_PATH = os.path.join("models", "modelo_churn.joblib")
 
-    # Guardar en base de datos
-    registro = PredictionRecord(
-        customer_id=str(data.CustomerID),
-        input_data=json.dumps(data.dict()),
-        prediction=str(pred),
-        probability=float(prob)
-    )
+modelo = joblib.load(MODEL_PATH)
 
-    with Session(engine) as session:
-        session.add(registro)
-        session.commit()
+def predecir_churn(data: dict):
+    try:
+        # Convertimos el diccionario a DataFrame
+        df = pd.DataFrame([data])
 
-    return {"prediction": pred, "probability": prob}
+        # Validamos columnas esperadas
+        columnas_esperadas = ["edad", "ingresos", "antiguedad_meses", "num_productos"]
+        if not all(col in df.columns for col in columnas_esperadas):
+            raise ValueError(f"Faltan columnas. Se esperaban: {columnas_esperadas}")
+
+        pred = modelo.predict(df)[0]
+        prob = modelo.predict_proba(df)[0][1]
+
+        resultado = "Abandona" if pred == 1 else "Permanece"
+        return resultado, float(prob)
+
+    except Exception as e:
+        raise RuntimeError(f"Error al predecir churn: {str(e)}")
+
+
+
 
 
 
