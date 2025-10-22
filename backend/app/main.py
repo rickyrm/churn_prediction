@@ -1,7 +1,11 @@
 from fastapi import FastAPI
 from sqlmodel import SQLModel
+from app.api.routes_auth import router as auth_router
+from app.api.routes_stats import router as stats_router
 from app.api.routes_predict import router as predict_router
 from app.database.database import engine
+
+
 
 app = FastAPI(
     title="Customer Churn API",
@@ -29,7 +33,9 @@ def root():
         "api": "/predecir/"
     }
 
-
+app.include_router(auth_router, tags=["Auth"])
+app.include_router(stats_router, tags=["Stats"])
+app.include_router(predict_router, tags=["Predict"])
 
 
 
