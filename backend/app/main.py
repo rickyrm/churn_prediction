@@ -39,4 +39,3 @@ app.include_router(predict_router, tags=["Predict"])
 
 
 
-
