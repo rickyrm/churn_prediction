@@ -1,9 +1,18 @@
 <template>
-  <div class="min-h-screen bg-gray-100">
-    <PredictForm />
-  </div>
+  <router-view />
 </template>
 
-<script setup>
-import PredictForm from './components/PredictForm.vue'
+<script>
+export default {
+  name: "App"
+};
 </script>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background-color: #f5f7fa;
+}
+</style>
+
