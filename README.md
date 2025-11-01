@@ -1,11 +1,4 @@
-Excelente, Ricky 👌
-Aquí tienes un **README.md** completamente documentado, con estilo profesional y corporativo, que puedes colocar directamente en la raíz de tu proyecto.
-
-Está pensado para que cualquier ingeniero o responsable técnico pueda **clonar, instalar y ejecutar** tanto el **backend (FastAPI)** como el **frontend (Vue 3)** sin complicaciones.
-
----
-
-## 🧠 **README.md — Sistema de Predicción de Churn**
+## 🧠 **Sistema de Predicción de Churn**
 
 ### 📋 **Resumen del Proyecto**
 
