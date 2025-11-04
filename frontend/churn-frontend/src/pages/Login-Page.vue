@@ -45,10 +45,17 @@ export default {
     const router = useRouter();
     const auth = useAuthStore();
 
-    const username = ref("admin");
-    const password = ref("admin123");
+    const username = ref("");
+    const password = ref("");
+    const loading = ref(false);
 
     const loginUser = async () => {
+      if (!username.value || !password.value) {
+        alert("Por favor, ingrese usuario y contraseña.");
+        return;
+      }
+
+      loading.value = true;
       try {
         const response = await axios.post(
           "http://127.0.0.1:8000/token",
@@ -63,18 +70,25 @@ export default {
           auth.setToken(response.data.access_token);
           router.push("/predictions");
         } else {
-          alert("Credenciales inválidas. Favor de verificar.");
+          alert("Credenciales inválidas. Verifique su usuario y contraseña.");
         }
       } catch (err) {
         console.error("Error al iniciar sesión:", err.response?.data || err);
-        alert("Error de conexión o credenciales inválidas.");
+        const msg =
+          err.response?.status === 401
+            ? "Credenciales incorrectas."
+            : "No se pudo conectar con el servidor.";
+        alert(msg);
+      } finally {
+        loading.value = false;
       }
     };
 
-    return { username, password, loginUser };
+    return { username, password, loginUser, loading };
   },
 };
 </script>
+
 
 <style scoped>
 /* Fondo general */

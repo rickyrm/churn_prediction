@@ -1,10 +1,16 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel
+
 from app.api.routes_auth import router as auth_router
 from app.api.routes_stats import router as stats_router
 from app.api.routes_predict import router as predict_router
 from app.database.database import engine
+
+
 
 app = FastAPI(
     title="Customer Churn API",
