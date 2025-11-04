@@ -1,29 +1,54 @@
 <template>
   <div class="container">
+    <div class="bg"></div>
+    <div class="bg bg2"></div>
+    <div class="bg bg3"></div>
     <div class="header">
       <h2>Panel de Predicción de Churn</h2>
       <button class="logout-btn" @click="logout">Cerrar Sesión</button>
     </div>
 
-    <!-- === PANEL DE MÉTRICAS === -->
-    <div class="kpi-grid" v-if="stats.total > 0">
-      <div class="kpi-card total">
-        <h3>Total Predicciones</h3>
-        <p>{{ stats.total }}</p>
+    <!-- === MÉTRICAS === -->
+    <div class="collapsible-card">
+      <div class="card-header" @click="collapsedKpis = !collapsedKpis">
+        <h3>Métricas de Predicción</h3>
+        <button class="toggle-btn">{{ collapsedKpis ? "▼" : "▲" }}</button>
       </div>
-      <div class="kpi-card churn">
-        <h3>Clientes que Abandonan</h3>
-        <p>{{ stats.abandona }}</p>
-      </div>
-      <div class="kpi-card stay">
-        <h3>Clientes que Permancen</h3>
-        <p>{{ stats.permanece }}</p>
-      </div>
+
+      <transition name="collapse">
+        <div v-show="!collapsedKpis" class="card-body">
+          <div class="kpi-grid" v-if="stats.total > 0">
+            <div class="kpi-card total">
+              <h3>Total Predicciones</h3>
+              <p>{{ stats.total }}</p>
+            </div>
+            <div class="kpi-card churn">
+              <h3>Clientes que Abandonan</h3>
+              <p>{{ stats.abandona }}</p>
+            </div>
+            <div class="kpi-card stay">
+              <h3>Clientes que Permanecen</h3>
+              <p>{{ stats.permanece }}</p>
+            </div>
+          </div>
+        </div>
+      </transition>
     </div>
 
     <!-- === GRÁFICO === -->
-    <div class="chart-container" v-if="stats.total > 0">
-      <canvas id="churnChart"></canvas>
+    <div class="collapsible-card">
+      <div class="card-header" @click="toggleChart">
+        <h3>Distribución de Clientes</h3>
+        <button class="toggle-btn">{{ collapsedChart ? "▼" : "▲" }}</button>
+      </div>
+
+      <transition name="collapse">
+        <div v-show="!collapsedChart" class="card-body">
+          <div class="chart-container" v-if="stats.total > 0">
+            <canvas id="churnChart"></canvas>
+          </div>
+        </div>
+      </transition>
     </div>
 
     <!-- === FORMULARIO === -->
@@ -127,7 +152,7 @@
 
 <script>
 import axios from "../api/axios"
-import { ref, onMounted } from "vue"
+import { ref, onMounted, nextTick, watch } from "vue"
 import { useRouter } from "vue-router"
 import Chart from "chart.js/auto"
 
@@ -144,7 +169,8 @@ export default {
     const predictions = ref([])
     const editItem = ref(null)
     const stats = ref({ total: 0, abandona: 0, permanece: 0 })
-
+    const collapsedKpis = ref(false)
+    const collapsedChart = ref(false)
     let chartInstance = null
 
     const parseData = (p) =>
@@ -160,7 +186,8 @@ export default {
       renderChart()
     }
 
-    const renderChart = () => {
+    const renderChart = async () => {
+      await nextTick()
       const ctx = document.getElementById("churnChart")
       if (!ctx) return
 
@@ -169,7 +196,7 @@ export default {
       chartInstance = new Chart(ctx, {
         type: "pie",
         data: {
-          labels: ["Abandonan", "Permancen"],
+          labels: ["Abandonan", "Permanecen"],
           datasets: [{
             data: [stats.value.abandona, stats.value.permanece],
             backgroundColor: ["#e74c3c", "#2ecc71"]
@@ -255,21 +282,65 @@ export default {
       router.push("/")
     }
 
+    const toggleChart = async () => {
+      collapsedChart.value = !collapsedChart.value
+      if (!collapsedChart.value) {
+        await nextTick()
+        renderChart()
+      }
+    }
+
     onMounted(fetchPredictions)
+
+    watch(predictions, () => {
+      if (stats.value.total > 0) nextTick(renderChart)
+    })
 
     return {
       customer_id, edad, ingresos, antiguedad_meses, num_productos,
       predictions, editItem, stats,
       parseData,
       submitPrediction, updateRecord, deleteRecord,
-      openEdit, logout
+      openEdit, logout,
+      collapsedKpis, collapsedChart,
+      toggleChart
     }
   }
 }
 </script>
 
 <style scoped>
-/* === Layout principal === */
+/* ---------- Fondo animado ---------- */
+.bg {
+  animation: slide 10s ease-in-out infinite alternate;
+  background-image: linear-gradient(-60deg, rgb(192, 127, 228) 50%, rgb(243, 197, 132) 50%);
+  bottom: 0;
+  left: -50%;
+  opacity: 0.5;
+  position: fixed;
+  right: -50%;
+  top: 0;
+  z-index: -1;
+}
+
+.bg2 {
+  animation-direction: alternate-reverse;
+  animation-duration: 10s;
+}
+
+.bg3 {
+  animation-duration: 15s;
+}
+
+@keyframes slide {
+  0% {
+    transform: translateX(-25%);
+  }
+  100% {
+    transform: translateX(25%);
+  }
+}
+
 .container {
   max-width: 1000px;
   margin: 40px auto;
@@ -296,6 +367,63 @@ export default {
 }
 .logout-btn:hover {
   background: #c0392b;
+}
+
+/* === Cards colapsables === */
+.collapsible-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 25px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
+  background: #f7f9fb;
+  border-bottom: 1px solid #e1e4e8;
+  cursor: pointer;
+}
+
+.card-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 16px;
+}
+
+.toggle-btn {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  color: #7f8c8d;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.toggle-btn:hover {
+  color: #3498db;
+}
+
+.collapse-enter-active,
+.collapse-leave-active {
+  transition: max-height 0.4s ease, opacity 0.3s ease;
+}
+.collapse-enter-from,
+.collapse-leave-to {
+  max-height: 0;
+  opacity: 0;
+}
+.collapse-enter-to,
+.collapse-leave-from {
+  max-height: 800px;
+  opacity: 1;
+}
+
+.card-body {
+  padding: 20px;
 }
 
 /* === KPI Dashboard === */
@@ -424,4 +552,5 @@ th, td {
   to { opacity: 1; transform: translateY(0); }
 }
 </style>
+
 

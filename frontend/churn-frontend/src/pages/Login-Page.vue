@@ -1,32 +1,45 @@
 <template>
   <div class="login-wrapper">
-    <div class="login-container">
-      <h2>Inicio de Sesión</h2>
+    <!-- Fondo animado -->
+    <div class="bg"></div>
+    <div class="bg bg2"></div>
+    <div class="bg bg3"></div>
 
-      <form @submit.prevent="loginUser">
-        <div class="form-group">
-          <label for="username">Usuario</label>
+    <!-- Contenedor del login -->
+    <div class="container">
+      <form @submit.prevent="loginUser" autocomplete="off" id="form">
+        <h1 id="message">Inicio de Sesión</h1>
+        <small id="smallMessage"></small>
+
+        <div class="field">
           <input
             id="username"
             v-model="username"
             type="text"
-            placeholder="Ingrese su usuario"
+            placeholder="Usuario"
+            autocomplete="off"
             required
           />
+          <label for="username">Usuario</label>
         </div>
 
-        <div class="form-group">
-          <label for="password">Contraseña</label>
+        <div class="field">
           <input
             id="password"
             v-model="password"
             type="password"
-            placeholder="Ingrese su contraseña"
+            placeholder="Contraseña"
+            autocomplete="new-password"
             required
           />
+          <label for="password">Contraseña</label>
         </div>
 
-        <button type="submit" class="btn-primary">Acceder</button>
+        <button id="submit" type="submit">
+          Acceder
+        </button>
+
+        <p>Al acceder, acepta los Términos de Servicio y la Política de Privacidad.</p>
       </form>
     </div>
   </div>
@@ -89,93 +102,181 @@ export default {
 };
 </script>
 
+<style scoped lang="scss">
+/* ----------- Fondo animado (mantiene tu estilo original) ----------- */
+.bg {
+  animation: slide 10s ease-in-out infinite alternate;
+  background-image: linear-gradient(-60deg, rgb(192, 127, 228) 50%, rgb(243, 197, 132) 50%);
+  bottom: 0;
+  left: -50%;
+  opacity: 0.5;
+  position: fixed;
+  right: -50%;
+  top: 0;
+  z-index: -1;
+}
 
-<style scoped>
-/* Fondo general */
+.bg2 {
+  animation-direction: alternate-reverse;
+  animation-duration: 10s;
+}
+
+.bg3 {
+  animation-duration: 15s;
+}
+
+@keyframes slide {
+  0% {
+    transform: translateX(-25%);
+  }
+  100% {
+    transform: translateX(25%);
+  }
+}
+
+/* ----------- Estructura general ----------- */
 .login-wrapper {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+  position: relative;
+  overflow: hidden;
+  color: white;
+  font-family: "Lato", sans-serif;
 }
 
-/* Contenedor principal */
-.login-container {
-  background: #ffffff;
-  padding: 40px 35px;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 400px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  animation: fadeIn 0.4s ease-out;
+/* ----------- Estilos del formulario (adaptado del template CSS) ----------- */
+.container {
+  width: 400px;
+  z-index: 1;
 }
 
-/* Título */
-.login-container h2 {
-  text-align: center;
-  color: #34495e;
-  margin-bottom: 30px;
-  font-weight: 700;
-}
-
-/* Campos del formulario */
-.form-group {
+form {
   display: flex;
   flex-direction: column;
-  margin-bottom: 18px;
-}
+  background: transparent;
+  max-width: 320px;
+  padding: 2rem;
+  position: relative;
+  color: white;
 
-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 6px;
-}
-
-input {
-  padding: 10px 12px;
-  border: 1px solid #ccd1d9;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-}
-
-input:focus {
-  border-color: #3498db;
-  box-shadow: 0 0 5px rgba(52, 152, 219, 0.4);
-  outline: none;
-}
-
-/* Botón principal */
-.btn-primary {
-  background: #3498db;
-  color: #fff;
-  border: none;
-  width: 100%;
-  padding: 12px;
-  border-radius: 6px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.btn-primary:hover {
-  background: #2980b9;
-}
-
-/* Animación de entrada */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+  &::before,
+  &::after {
+    position: absolute;
+    content: "";
+    width: 100%;
+    height: 100%;
+    transition: all 0.5s ease;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  &::before {
+    z-index: -1;
+    background: transparent;
+    transform: translateX(-3.5rem) translateY(-3.75rem);
+    border: 6px solid #570963;
+  }
+
+  &::after {
+    background: #a228ee;
+    z-index: -2;
+    transform: translateX(-2rem) translateY(-2.25rem);
+  }
+
+  &:focus-within {
+    background: #d47af8;
+    &::before {
+      width: 0%;
+      height: 0%;
+      transform: translatex(0) translatey(0);
+    }
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 1.5rem;
+    margin: 0 0 0.25rem 0;
+  }
+
+  small {
+    display: block;
+    margin: 0 auto 1rem;
+    font-size: 14px;
+  }
+
+  .field {
+    display: flex;
+    flex-flow: column-reverse;
+    margin-bottom: 1em;
+  }
+
+  label,
+  input {
+    transition: all 0.3s ease;
+    touch-action: manipulation;
+  }
+
+  label {
+    opacity: 0;
+  }
+
+  input {
+    padding: 10px 20px;
+    border: 4px solid white;
+    margin: 0 1.5rem;
+    background-color: transparent !important;
+    color: white;
+
+    &::placeholder {
+      color: white;
+    }
+
+    &:focus {
+      color: #262832;
+      font-weight: bold;
+      outline: 0;
+      border: 6px solid #34363e;
+    }
+
+    &::-webkit-input-placeholder {
+      opacity: 1;
+      transition: inherit;
+    }
+
+    &:focus::-webkit-input-placeholder {
+      opacity: 0;
+    }
+  }
+
+  button {
+    border: none;
+    padding: 0.85rem 1rem;
+    margin-top: 2rem;
+    background-color: #9003b7;
+    color: white;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    width: 65%;
+    position: absolute;
+    bottom: -20px;
+    right: 18%;
+    letter-spacing: 0.15em;
+    transition: all 0.3s ease;
+
+    &:hover {
+      border: 6px solid #c7c8f2;
+    }
+  }
+
+  p {
+    font-size: 0.75rem;
+    line-height: 1.125rem;
+    margin: 0.5rem 1.5rem 1.75rem 1.5rem;
   }
 }
 </style>
+
+
 
 
 
