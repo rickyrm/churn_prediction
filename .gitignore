@@ -1,0 +1,41 @@
+# ==== General ====
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+.DS_Store
+
+# ==== Entornos virtuales ====
+venv/
+.venv/
+env/
+.env/
+
+# ==== Variables de entorno ====
+.env
+
+# ==== Archivos de configuración locales ====
+*.local
+*.ini
+*.cfg
+*.bak
+
+# ==== Backend (FastAPI / Python) ====
+backend/__pycache__/
+backend/.pytest_cache/
+backend/.mypy_cache/
+backend/.env
+
+# ==== Frontend (React / Node / Vue) ====
+frontend/node_modules/
+frontend/.env
+frontend/dist/
+frontend/build/
+frontend/.next/
+frontend/.nuxt/
+
+# ==== IDEs ====
+.vscode/
+.idea/
+*.swp
