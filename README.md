@@ -1,4 +1,4 @@
-## 🧠 **Sistema de Predicción de Churn**
+## 🧠 **Sistema de Predicción de Abandono**
 
 ### 📋 **Resumen del Proyecto**
 
